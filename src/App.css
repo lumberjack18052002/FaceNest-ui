@@ -1,38 +1,219 @@
-.App {
-  text-align: center;
+/* =========================
+   GLOBAL RESET
+========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* =========================
+   THEME VARIABLES
+========================= */
+:root {
+  /* Brand */
+  --brand-primary: #1E3A8A;   /* Deep Blue */
+  --brand-secondary: #92400E; /* Nest Brown */
+  --brand-accent: #65A30D;    /* Leaf Green */
+
+  /* Backgrounds */
+  --bg-main: #FAFAF9;
+  --bg-surface: #FFFFFF;
+
+  /* Borders */
+  --border-color: #E5E7EB;
+
+  /* Text */
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* =========================
+   BASE STYLES
+========================= */
+html, body {
+  height: 100%;
 }
 
-.App-header {
-  background-color: #282c34;
+body {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg-main);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+/* =========================
+   PAGE LAYOUT
+========================= */
+.page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+/* =========================
+   HEADER
+========================= */
+.header {
+  background: var(--brand-primary);
+  color: #ffffff;
+  padding: 0 24px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.header-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* =========================
+   MAIN BODY
+========================= */
+.main {
+  padding: 24px;
+}
+
+/* =========================
+   FOOTER
+========================= */
+.footer {
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  display: flex;
+  text-align: center;
+  padding: 10px ;
+  font-size: 14px;
+}
+
+.content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 600px 1fr;
+}
+
+.center {
+  padding: 20px;
+}
+
+/* =========================
+   GRID SYSTEM
+========================= */
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* =========================
+   CARD (PORTFOLIO / PROFILE)
+========================= */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.card-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* =========================
+   BUTTONS
+========================= */
+.button {
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.button-primary {
+  background: var(--brand-primary);
+  color: #ffffff;
+}
+
+.button-primary:hover {
+  background: #1D4ED8;
+}
+
+.button-secondary {
+  background: var(--brand-secondary);
+  color: #ffffff;
+}
+
+.button-secondary:hover {
+  background: #78350F;
+}
+
+/* =========================
+   TAGS / ACCENTS
+========================= */
+.tag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: rgba(101, 163, 13, 0.1);
+  color: var(--brand-accent);
+}
+
+/* =========================
+   FORMS
+========================= */
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  font-size: 0.9rem;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .grid-3 {
+    grid-template-columns: 1fr;
   }
-  to {
-    transform: rotate(360deg);
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .main {
+    padding: 16px;
   }
 }
