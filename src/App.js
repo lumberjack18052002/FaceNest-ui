@@ -1,22 +1,27 @@
+import { use, useState } from "react";
 import "./App.css";
-import ProfileList from "./Components/ProfileList";
+import Footer from "./Components/Footer";
+import Header from "./Components/Header";
+import ProfileCard from "./Components/ProfileCard";
+import Dashboard from "./Components/Dashboard";
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
-    <div className="page">
-      <div className="header">
-        <h2>FaceNest</h2>
-      </div>
-      <div className="content">
-        <div className="left"></div>
-        <div className="center">
-          <ProfileList />
-        </div>
-        <div className="right"></div>
-      </div>
-      <div className="footer">
-        <p>© 2025 FaceNest. All rights reserved.</p>
-      </div>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Header isLoggedIn={isLoggedIn} />
+      <main className="flex flex-1 items-center justify-center ">
+        {isLoggedIn ? (
+          <Dashboard />
+        ) : (
+          <ProfileCard
+            onLogin={() => {
+              setIsLoggedIn(true);
+            }}
+          />
+        )}
+      </main>
+      <Footer />
     </div>
   );
 }
