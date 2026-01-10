@@ -27,7 +27,10 @@ export function AuthProvider({ children }) {
       credentials: "include",
     });
 
-    if (!res.ok) throw new Error("Login failed");
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw errorData;
+    }
 
     // 🔁 VERIFY SESSION
     const me = await fetch("http://localhost:8080/auth/me", {
@@ -48,10 +51,13 @@ export function AuthProvider({ children }) {
       credentials: "include",
     });
 
-    if (!res.ok) throw new Error("Register failed");
+    if (!res.ok) {
+      const resBody = await res.json();
+      throw new Error(resBody.error);
+    }
 
     setIsAuthenticated(true);
-    navigate("/dashboard", { replace: true });
+    navigate("/register", { replace: true });
   }
 
   // LOGOUT
