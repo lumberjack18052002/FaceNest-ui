@@ -1,32 +1,51 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
+import "react-phone-number-input/style.css";
+import PrimaryRole from "./RegisterationComponents/PrimaryRole";
+import { useAuth } from "../Context/AuthContext";
 
 export default function RegisterForm() {
   const navigate = useNavigate();
 
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState("FULL_STACK");
-  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [role, setRole] = useState("");
+  const [location, setLocation] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [formError, setFormError] = useState("");
+  const { userId } = useAuth();
+
+  const handlePhoneChange = (value) => {
+    setPhone(value);
+    if (!value) {
+      setPhoneError("");
+    } else {
+      setPhoneError(isValidPhoneNumber(value) ? "" : "Invalid phone number");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setFormError("");
+
+    if (phone && phoneError) return;
+
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8080/auth/register", {
+      const res = await fetch("http://localhost:8080/data/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
+          userId,
           fullName,
           username,
-          email,
-          password,
+          phone,
+          location,
           role,
         }),
       });
@@ -38,7 +57,7 @@ export default function RegisterForm() {
 
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError(err.message);
+      setFormError(err.message);
     } finally {
       setLoading(false);
     }
@@ -53,8 +72,8 @@ export default function RegisterForm() {
         Create your developer profile
       </p>
 
-      {error && (
-        <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+      {formError && (
+        <p className="text-red-500 text-sm mb-4 text-center">{formError}</p>
       )}
 
       <form className="space-y-4" onSubmit={handleSubmit}>
@@ -82,39 +101,49 @@ export default function RegisterForm() {
         </div>
 
         <div>
-          <label className="block text-gray-700 mb-1">Email</label>
-          <input
-            type="email"
-            className="w-full px-3 py-2 border rounded"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+          <label className="block text-gray-700 mb-1">
+            Mobile Number <span className="text-gray-400">(optional)</span>
+          </label>
+          <PhoneInput
+            international
+            defaultCountry="IN"
+            value={phone}
+            onChange={handlePhoneChange}
+            className="border rounded px-3 py-2 w-full"
           />
+          {phoneError && (
+            <p className="text-red-500 text-xs mt-1">{phoneError}</p>
+          )}
         </div>
 
         <div>
           <label className="block text-gray-700 mb-1">Primary Role</label>
           <select
-            className="w-full px-3 py-2 border rounded bg-white"
+            required
             value={role}
             onChange={(e) => setRole(e.target.value)}
+            className={`w-full px-3 py-2 border rounded bg-white ${
+              role === "" ? "text-gray-400" : "text-black"
+            }`}
           >
-            <option value="FRONTEND">Frontend Developer</option>
-            <option value="BACKEND">Backend Developer</option>
-            <option value="FULL_STACK">Full-Stack Developer</option>
-            <option value="MOBILE">Mobile Developer</option>
-            <option value="STUDENT">Student</option>
+            <option value="" disabled className="text-gray-400">
+              Select your role
+            </option>
+            {PrimaryRole.map((r) => (
+              <option key={r.value} value={r.value} className="text-black">
+                {r.label}
+              </option>
+            ))}
           </select>
         </div>
 
         <div>
-          <label className="block text-gray-700 mb-1">Password</label>
+          <label className="block text-gray-700 mb-1">Country</label>
           <input
-            type="password"
+            placeholder="Country / Location (optional)"
             className="w-full px-3 py-2 border rounded"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
           />
         </div>
 
@@ -127,7 +156,7 @@ export default function RegisterForm() {
           {loading && (
             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
           )}
-          {loading ? "Creating account..." : "Create Account"}
+          {loading ? "Registering..." : "Register"}
         </button>
       </form>
     </div>

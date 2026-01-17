@@ -45,7 +45,6 @@ function ProfileCard() {
       await register(email, password);
     } catch (e) {
       setLoginError(true);
-      console.log(e.message);
       setErrorMessage(e.message || "Registration failed");
       alert("Registering failed");
     } finally {

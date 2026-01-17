@@ -1,24 +1,32 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
-  // CHECK SESSION ON APP LOAD
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const [profileCreated, setProfileCreated] = useState(false);
+
+  // 🔁 CHECK SESSION ON APP LOAD
   useEffect(() => {
     fetch("http://localhost:8080/auth/me", {
       credentials: "include",
     })
-      .then((res) => setIsAuthenticated(res.ok))
-      .catch(() => setIsAuthenticated(false));
+      .then(async (res) => {
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        setIsAuthenticated(true);
+        setUserId(data.id);
+        setProfileCreated(data.profileCreated);
+      })
+      .catch(() => {
+        setIsAuthenticated(false);
+        setUserId(null);
+      });
   }, []);
-
-  // LOGIN
   async function login(email, password) {
     const res = await fetch("http://localhost:8080/login", {
       method: "POST",
@@ -28,21 +36,34 @@ export function AuthProvider({ children }) {
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
-      throw errorData;
+      const error = await res.json();
+      throw new Error(error.error || "Login failed");
     }
 
-    // 🔁 VERIFY SESSION
-    const me = await fetch("http://localhost:8080/auth/me", {
+    // ✅ SESSION CONFIRM
+    const meRes = await fetch("http://localhost:8080/auth/me", {
       credentials: "include",
     });
 
-    setIsAuthenticated(me.ok);
-    const from = location.state?.from?.pathname || "/dashboard";
-    navigate(from, { replace: true });
+    if (!meRes.ok) {
+      throw new Error("Session verification failed");
+    }
+
+    const me = await meRes.json();
+    setIsAuthenticated(true);
+    setUserId(me.id);
+    setProfileCreated(me.profileCreated);
+
+    if (!me.profileCreated) {
+      navigate("/register", { replace: true });
+    } else {
+      const from = "/dashboard";
+      navigate(from, { replace: true });
+    }
+
+    return me.id;
   }
 
-  //  REGISTER
   async function register(email, password) {
     const res = await fetch("http://localhost:8080/auth/register", {
       method: "POST",
@@ -52,15 +73,14 @@ export function AuthProvider({ children }) {
     });
 
     if (!res.ok) {
-      const resBody = await res.json();
-      throw new Error(resBody.error);
+      const body = await res.json();
+      throw new Error(body.error || "Registration failed");
     }
-
-    setIsAuthenticated(true);
     navigate("/register", { replace: true });
+    await login(email, password);
   }
 
-  // LOGOUT
+  // 🚪 LOGOUT
   async function logout() {
     await fetch("http://localhost:8080/auth/logout", {
       method: "POST",
@@ -68,11 +88,22 @@ export function AuthProvider({ children }) {
     });
 
     setIsAuthenticated(false);
+    setUserId(null);
+    setProfileCreated(false);
     navigate("/login", { replace: true });
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, register, logout }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        userId,
+        profileCreated,
+        login,
+        register,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
